@@ -2,6 +2,7 @@
 
 const path = require('path')
 const webpack = require('webpack')
+const { paths } = require('./config')
 
 module.exports = {
   entry: [
@@ -11,8 +12,8 @@ module.exports = {
     './index.js'
   ],
   output: {
-    path: path.resolve(__dirname, 'public', 'dist'),
-    publicPath: '/dist/',
+    path: path.resolve(__dirname, paths.public, paths.dist),
+    publicPath: `/${paths.dist}/`,
     filename: 'index.js'
   },
   module: {
@@ -40,7 +41,7 @@ module.exports = {
   ],
   devtool: 'inline-source-map',
   devServer: {
-    contentBase: './public',
+    contentBase: `./${paths.public}`,
     publicPath: '/',
     compress: true,
     historyApiFallback: true,
