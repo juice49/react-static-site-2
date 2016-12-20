@@ -1,6 +1,14 @@
 'use strict'
 
-import { Bar } from './components'
+import React from 'react'
+import { render } from 'react-dom'
+import Bar from './components'
 
-System.import('./foo')
-  .then(foo => console.log(foo.default()))
+const renderApp = () =>
+  render(<Bar />, document.getElementById('app'))
+
+renderApp()
+
+if (module.hot) {
+  module.hot.accept('./components', renderApp)
+}

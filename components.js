@@ -1,2 +1,10 @@
-export const Foo = () => <div>hello i am foo</div>
-export const Bar = () => <div>and i am bar</div>
+import React from 'react'
+
+const Bar = () => (
+  <div style={{ background: 'blue' }}>
+    <h1>hey</h1>
+    <div>i am bar</div>
+  </div>
+)
+
+export default Bar
