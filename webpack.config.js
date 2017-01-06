@@ -26,11 +26,11 @@ module.exports = {
     ]
   },
   plugins: [
-    new webpack.DefinePlugin({
+    /*new webpack.DefinePlugin({
       'process.env': {
         'NODE_ENV': JSON.stringify('production')
       }
-    }),
+    }),*/
     /*new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: true
@@ -43,7 +43,7 @@ module.exports = {
   devServer: {
     contentBase: `./${paths.public}`,
     publicPath: '/',
-    compress: true,
+    compress: false, // xxx
     historyApiFallback: true,
     hot: true
   }

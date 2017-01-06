@@ -2,13 +2,13 @@
 
 import React from 'react'
 import { render } from 'react-dom'
-import Bar from './components'
+import App from './components/app'
 
 const renderApp = () =>
-  render(<Bar />, document.getElementById('app'))
+  render(<App />, document.getElementById('app'))
 
 renderApp()
 
 if (module.hot) {
-  module.hot.accept('./components', renderApp)
+  module.hot.accept('./components/app', renderApp)
 }
