@@ -1,3 +1,5 @@
+import Document from './components/document'
 import Post from './components/post'
 import Index from './components/index'
-export const theme = { Post, Index }
+import NotFound from './components/not-found'
+export const theme = { Document, Post, Index, NotFound }

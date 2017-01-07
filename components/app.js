@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
-import { BrowserRouter as Router, Match, Miss } from 'react-router'
+import React, { Component, PropTypes } from 'react'
+import { Match, Miss } from 'react-router'
 import { theme } from '../theme-config'
 import Content from './content'
 
-const { Index: IndexTheme } = theme
+const { Index, NotFound } = theme
 
 const initialState = {
   cache: {}
@@ -28,20 +28,22 @@ export default class App extends Component {
 
   render () {
     return (
-      <Router>
-        <div>
-          <Match pattern='/' exactly component={IndexTheme} />
-          <Match pattern='/posts/:urn' render={({ params }) => (
-            <Content
-              cache={this.state.cache}
-              urn={params.urn}
-              contentDidLoad={this.cacheContent}
-            />
-          )} />
-          <Miss render={() => <div>not found</div>} />
-        </div>
-      </Router>
+      <div>
+        <Match pattern='/' exactly component={Index} />
+        <Match pattern='/posts/:urn' render={({ params }) => (
+          <Content
+            cache={this.props.serverCache || this.state.cache}
+            urn={params.urn}
+            contentDidLoad={this.cacheContent}
+          />
+        )} />
+        <Miss component={NotFound} />
+      </div>
     )
   }
 
+}
+
+App.propTypes = {
+  serverCache: PropTypes.object
 }

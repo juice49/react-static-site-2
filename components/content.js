@@ -1,9 +1,12 @@
 import React, { Component, PropTypes } from 'react'
+import { theme } from '../theme-config'
 import fetchContent from '../lib/fetch-content'
+
+const { NotFound } = theme
 
 export default class Content extends Component {
 
-  componentWillMount () {
+  componentDidMount () {
     this.fetchContent(this.props.urn)
   }
 
@@ -24,7 +27,7 @@ export default class Content extends Component {
     return fetchContent(urn)
       .then(
         Content => contentDidLoad(urn, Content),
-        () => contentDidLoad(urn, () => <div>NOT FOUND</div>)
+        () => contentDidLoad(urn, NotFound)
       )
   }
 
