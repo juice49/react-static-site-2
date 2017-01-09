@@ -61,5 +61,14 @@ module.exports = [
     },
     target: 'node',
     module: webpackConfig.module
+  },
+  {
+    entry: './src/serve.js',
+    output: {
+      path: path.resolve(__dirname, paths.dist),
+      filename: 'serve.js'
+    },
+    target: 'node',
+    module: webpackConfig.module
   }
 ]
