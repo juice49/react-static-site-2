@@ -49,8 +49,11 @@ module.exports = [
       contentBase: `./${paths.public}`,
       publicPath: '/',
       compress: false, // xxx
-      historyApiFallback: true,
-      hot: true
+      //historyApiFallback: true,
+      hot: true,
+      historyApiFallback: {
+        disableDotRule: true
+      }
     }
   },
   {
