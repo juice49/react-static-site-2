@@ -1,6 +1,7 @@
 'use strict'
 
 const path = require('path')
+const { parse: parseUrl } = require('url')
 const webpack = require('webpack')
 const { paths } = require('./config')
 
@@ -49,10 +50,24 @@ module.exports = [
       contentBase: `./${paths.public}`,
       publicPath: '/',
       compress: false, // xxx
-      //historyApiFallback: true,
+      historyApiFallback: true,
       hot: true,
-      historyApiFallback: {
-        disableDotRule: true
+      proxy: {
+        '/': {
+          target: 'http://localhost:8080', // xxx
+          pathRewrite: (reqPath, req) => {
+            const url = parseUrl(req.url)
+            const extname = path.extname(url.pathname)
+
+            const destination = reqPath !== '/' && !extname
+              ? `${reqPath}.html`
+              : reqPath
+
+            console.log(req.headers)
+            console.log(`> Proxying ${reqPath} to ${destination}`)
+            return destination
+          }
+        }
       }
     }
   },
