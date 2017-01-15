@@ -1,6 +1,6 @@
 'use strict'
 
-import { readdir, writeFile } from 'fs'
+import { writeFile } from 'fs'
 import { join as pathJoin, dirname } from 'path'
 import mkdirp from 'mkdirp'
 import React from 'react'
@@ -8,25 +8,16 @@ import { renderToString as render, renderToStaticMarkup } from 'react-dom/server
 import { ServerRouter as Router, createServerRenderContext } from 'react-router'
 import config from './config'
 import fetchContent from './lib/fetch-content'
+import mapUrns from './lib/map-urns'
 import { theme } from './theme-config'
 import App from './components/app'
 
 const context = createServerRenderContext()
 const { Document } = theme
 
-const paths = [
-  {
-    uri: '/posts/hello-world',
-    urn: 'hello-world'
-  },
-  {
-    uri: '/posts/foo',
-    urn: 'foo'
-  }
-]
-
-const fetchContentAndRenderPage = (uri, urn) => fetchContent(urn)
+const fetchContentAndRenderPage = (uri, urn) => console.log('FETCH', uri, urn) || fetchContent(urn)
   .then(Content => renderPage(uri, urn, Content))
+  .catch(err => console.log('ODDD', err))
 
 const renderPage = (uri, urn, Content) => {
   const initialCache = { [urn]: Content }
@@ -40,7 +31,8 @@ const renderPage = (uri, urn, Content) => {
   const html = renderToStaticMarkup(
     <Document>
       <div id='app' dangerouslySetInnerHTML={{ __html: app }} />
-      <script src='/dist/index.js' />
+      <script src='/dist/app.js' />
+      <script src={`/dist/${urn}.js`} />
     </Document>
   )
 
@@ -53,7 +45,7 @@ const renderPage = (uri, urn, Content) => {
 ` }} /> */
 
 const writePage = (uri, html) => {
-  const path = pathJoin(config.paths.public, uri)
+  const path = `${pathJoin(config.paths.public, uri)}.html`
   mkdirp(dirname(path))
   writeFile(path, html, err => {
     if (err) {
@@ -62,14 +54,20 @@ const writePage = (uri, html) => {
   })
 }
 
-const pages = paths.map(({ uri, urn }) =>
-  fetchContentAndRenderPage(uri, urn))
+mapUrns()
+  .then(paths => {
+    const pages = paths.map(({ uri, urn }) =>
+      fetchContentAndRenderPage(uri, urn))
 
-Promise.all(pages)
-  .then(renderedPages => {
-    renderedPages.forEach(({ uri, html }) =>
-      writePage(uri, html))
+    Promise.all(pages)
+      .then(renderedPages => {
+        renderedPages.forEach(({ uri, html }) =>
+          writePage(uri, html))
+      })
+      .catch(err => console.log(err))
+
+    renderPage('/', 'index')
+      .then(({ html }) => writePage('index', html))
+      .catch(err => console.log(err))
   })
-
-renderPage('/', 'index')
-  .then(({ html }) => writePage('index', html))
+  .catch(err => console.log(err))

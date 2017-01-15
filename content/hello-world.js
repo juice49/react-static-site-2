@@ -11,5 +11,11 @@ export default () => (
     <p>This can be run both on the server and the client, providing a
       universal way to fetch the component needed to render a page. And it
       seems to work really well... the only problem is, it doesn't.</p>
+    <p>I think we're going to need separate bundles to solve this.</p>
+    <p>This is a little less convenient than using the `import()` approach, but
+      the outcome will be the same: one file that contains most of our app,
+      shared by multiple files that represent each URN.</p>
+    <p>One nice things is that this allows us to avoid a webpack bug in which
+      modules fetched using `import()` do not work with HMR.</p>
   </Post>
 )
