@@ -20,6 +20,7 @@ const webpackConfig = {
 module.exports = [
   {
     entry: [
+      // Um? https://github.com/gaearon/react-hot-loader/issues/303#issuecomment-264646649
       'react-hot-loader/patch',
       'webpack-dev-server/client?http://localhost:8080',
       'webpack/hot/only-dev-server',
@@ -45,21 +46,26 @@ module.exports = [
       new webpack.HotModuleReplacementPlugin(),
       new webpack.NamedModulesPlugin()
     ],
-    devtool: 'inline-source-map',
+    devtool: 'inline-eval-cheap-source-map',
     devServer: {
       contentBase: `./${paths.public}`,
       publicPath: '/',
       compress: false, // xxx
       historyApiFallback: true,
-      hot: true,
-      proxy: {
+      hot: true
+      /*proxy: {
         '/': {
+          //onProxyReq: proxyReq => proxyReq.setHeader('x-foo', 'bar'),
+          //onProxyRes: (proxyReq, req, res) => res.write('hey!'),
           target: 'http://localhost:8080', // xxx
           pathRewrite: (reqPath, req) => {
             const url = parseUrl(req.url)
             const extname = path.extname(url.pathname)
 
-            const destination = reqPath !== '/' && !extname
+            console.log('PROXY', req)
+            return undefined
+
+            const destination = reqPath !== '/' && !extname && !req.headers['x-foo']
               ? `${reqPath}.html`
               : reqPath
 
@@ -68,7 +74,7 @@ module.exports = [
             return destination
           }
         }
-      }
+      }*/
     }
   },
   {

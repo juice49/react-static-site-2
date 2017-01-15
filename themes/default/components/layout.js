@@ -14,5 +14,6 @@ const Layout = ({ children }) => (
 export default Layout
 
 const style = {
-  fontFamily: '-apple-system, BlinkMacSystemFont'
+  fontFamily: '-apple-system, BlinkMacSystemFont',
+  lineHeight: 1.45
 }
