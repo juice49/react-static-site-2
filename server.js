@@ -53,7 +53,7 @@ const renderPage = (uri, urn, Content) => {
 ` }} /> */
 
 const writePage = (uri, html) => {
-  const path = pathJoin(config.paths.public, uri)
+  const path = `${pathJoin(config.paths.public, uri)}.html`
   mkdirp(dirname(path))
   writeFile(path, html, err => {
     if (err) {

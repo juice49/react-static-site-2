@@ -51,7 +51,14 @@ module.exports = [
       contentBase: `./${paths.public}`,
       publicPath: '/',
       compress: false, // xxx
-      historyApiFallback: true,
+      historyApiFallback: {
+        rewrites: [
+          {
+            from: /^\/$/,
+            to: '/index.html'
+          }
+        ]
+      },
       hot: true
       /*proxy: {
         '/': {
