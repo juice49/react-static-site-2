@@ -37,9 +37,17 @@ const renderPage = (uri, urn, Content) => {
     </Router>
   )
 
+  let boot;
+
+  if (Content) {
+    const fun = `window.b = function() { return ${Content.toString()}}`
+    boot = `window.Boot = ${JSON.stringify(fun)}`
+  }
+
   const html = renderToStaticMarkup(
     <Document>
       <div id='app' dangerouslySetInnerHTML={{ __html: app }} />
+      <script dangerouslySetInnerHTML={{ __html: boot }} />
       <script src='/dist/index.js' />
     </Document>
   )

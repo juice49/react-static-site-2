@@ -13,8 +13,8 @@
     "babel-preset-react": "^6.16.0",
     "mkdirp": "^0.5.1",
     "react-hot-loader": "3.0.0-beta.6",
-    "webpack": "beta",
-    "webpack-dev-server": "2.2.0-rc.0"
+    "webpack": "2.2",
+    "webpack-dev-server": "2.2"
   },
   "scripts": {
     "dev": "npm run build -- --watch --progress & webpack-dev-server",
