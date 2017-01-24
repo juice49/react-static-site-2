@@ -5,8 +5,14 @@ import fetchContent from '../lib/fetch-content'
 import Loading from './loading'
 
 const { NotFound } = theme
+const initialState = { fetching: null }
 
 export default class Content extends Component {
+
+  constructor (props) {
+    super(props)
+    this.state = initialState
+  }
 
   componentDidMount () {
     this.fetchContent(this.props.urn)
@@ -22,39 +28,26 @@ export default class Content extends Component {
     const { cache, contentDidLoad } = this.props
     const cached = cache[urn]
 
-    /* if (!isNode && window.prerendered && window.prerendered === urn) {
-      return Promise.resolve()
-    } */
-
     if (cached) {
       return Promise.resolve(cached)
     }
+
+    this.setState({ fetching: true })
 
     return fetchContent(urn)
       .then(
         Content => contentDidLoad(urn, Content),
         () => contentDidLoad(urn, NotFound)
       )
+      .then(() => this.setState({
+        fetching: false
+      }))
   }
 
   render () {
     const Content = this.props.cache[this.props.urn] || Loading
-    //return <Content />
 
-    // Let's try and work around the "Warning: React attempted to reuse markup in a container but the checksum was invalid." problem.
-    // This way we still get the warning, but we do avoid the app re-entering the
-    // loading state when it mounts in the browser.
-    //
-    // This doesn't actually work, because React doesn't rehydrate content set
-    // using dangerouslySetInnerHTML. For example, event listeners won't be added.
-    //
-    // We need a way to actually ready the cache with the loaded component...
-    //
-    // Each endpoint might need its own bundle to achieve this, because attempts
-    // at assigning the cache to window have been unsuccessful. This cache
-    // can't access the internal module vars created by webpack.
-
-    /* if (isNode) {
+    if (isNode) {
       return (
         <div id='js-prerendered-content'>
           <Content />
@@ -64,12 +57,14 @@ export default class Content extends Component {
 
     const prerendered = document.getElementById('js-prerendered-content')
 
-    if (prerendered) {
-      console.log('prerendered', prerendered.innerHTML)
+    if (prerendered && (this.state.fetching || this.state.fetching === null)) {
       return (
-        <div id='js-prerendered-content' dangerouslySetInnerHTML={{ __html: prerendered.innerHTML }} />
+        <div
+          id='js-prerendered-content'
+          dangerouslySetInnerHTML={{ __html: prerendered.innerHTML }}
+        />
       )
-    } */
+    }
 
     return <Content />
   }

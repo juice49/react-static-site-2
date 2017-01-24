@@ -8,6 +8,7 @@ const Index = () => (
     <ul>
       <li><Link to='/posts/hello-world'>Hello, World!</Link></li>
       <li><Link to='/posts/foo'>Foo</Link></li>
+      <li><Link to='/posts/markdown'>Markdown</Link></li>
     </ul>
   </Layout>
 )

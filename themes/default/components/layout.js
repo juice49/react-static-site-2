@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 
 const Layout = ({ children }) => (
   <div style={style}>
-    <h1><Link to='/'>Ashley</Link></h1>
+    <h1><Link to='/'>Ash</Link></h1>
     {children}
     <footer>
       <small>Thanks for reading 😊.</small>
