@@ -3,15 +3,21 @@
 import React from 'react'
 import { render } from 'react-dom'
 import { BrowserRouter as Router } from 'react-router'
+import { withAsyncComponents } from 'react-async-component'
 import App from './components/app'
 
-const renderApp = () =>
-  render(
+const renderApp = () => {
+  const app = (
     <Router>
       <App />
-    </Router>,
-    document.getElementById('app')
+    </Router>
   )
+
+  withAsyncComponents(app)
+    .then(({ appWithAsyncComponents }) => {
+      render(appWithAsyncComponents, document.getElementById('app'))
+    })
+}
 
 renderApp()
 

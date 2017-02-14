@@ -3,11 +3,12 @@
 import { readdir, writeFile } from 'fs'
 import { join as pathJoin, dirname } from 'path'
 import mkdirp from 'mkdirp'
+import serialize from 'serialize-javascript'
 import React from 'react'
 import { renderToString as render, renderToStaticMarkup } from 'react-dom/server'
+import { withAsyncComponents, createAsyncComponent } from 'react-async-component';
 import { ServerRouter as Router, createServerRenderContext } from 'react-router'
 import config from './config'
-import fetchContent from './lib/fetch-content'
 import { theme } from './theme-config'
 import App from './components/app'
 
@@ -25,32 +26,39 @@ const paths = [
   }
 ]
 
-const fetchContentAndRenderPage = (uri, urn) => fetchContent(urn)
-  .then(Content => renderPage(uri, urn, Content))
+const Async = createAsyncComponent({
+  resolve: () => import(`./content/foo`),
+  Loading: () => <div>~ ~ L O A D I N G ~ ~</div>
+})
 
-const renderPage = (uri, urn, Content) => {
-  const initialCache = { [urn]: Content }
-
-  const app = render(
+const renderPage = (uri, urn) => {
+  /*const app = (
     <Router location={uri} context={context}>
-      <App serverCache={initialCache} />
+      <App />
     </Router>
+  )*/
+
+  const app = () => (
+    <div>
+
+    </div>
   )
 
-  const html = renderToStaticMarkup(
-    <Document>
-      <div id='app' dangerouslySetInnerHTML={{ __html: app }} />
-      <script src='/dist/index.js' />
-    </Document>
-  )
+  return new Promise((resolve, reject) => {
+    withAsyncComponents(app)
+      .then(({ appWithAsyncComponents, state, STATE_IDENTIFIER }) => {
+        const html = renderToStaticMarkup(
+          <Document>
+            <div id='app' dangerouslySetInnerHTML={{ __html: render(appWithAsyncComponents) }} />
+            <script dangerouslySetInnerHTML={{ __html: `window.${STATE_IDENTIFIER} = ${serialize(state)}` }} />
+            <script src='/dist/index.js' />
+          </Document>
+        )
 
-  return Promise.resolve({ uri, html })
+        resolve({ uri, html })
+      })
+  })
 }
-
-/* <script dangerouslySetInnerHTML={{ __html: `
-  window.prerendered = '${urn}'
-  window.test = function() { return ${Content} }
-` }} /> */
 
 const writePage = (uri, html) => {
   const path = `${pathJoin(config.paths.public, uri)}`
@@ -63,7 +71,7 @@ const writePage = (uri, html) => {
 }
 
 const pages = paths.map(({ uri, urn }) =>
-  fetchContentAndRenderPage(uri, urn))
+  renderPage(uri, urn))
 
 Promise.all(pages)
   .then(renderedPages => {

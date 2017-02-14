@@ -46,26 +46,6 @@ export default class Content extends Component {
 
   render () {
     const Content = this.props.cache[this.props.urn] || Loading
-
-    if (isNode) {
-      return (
-        <div id='js-prerendered-content'>
-          <Content />
-        </div>
-      )
-    }
-
-    const prerendered = document.getElementById('js-prerendered-content')
-
-    if (prerendered && (this.state.fetching || this.state.fetching === null)) {
-      return (
-        <div
-          id='js-prerendered-content'
-          dangerouslySetInnerHTML={{ __html: prerendered.innerHTML }}
-        />
-      )
-    }
-
     return <Content />
   }
 
