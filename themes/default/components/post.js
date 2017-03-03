@@ -20,10 +20,9 @@ const style = {
 const Tags = ({ children }) => children
   ? (
     <small>
-      Tags:
       <ul>
         {children.map(tag =>
-          <li key={tag}>{tag}</li>)}
+          <li key={tag}>#{tag}</li>)}
       </ul>
     </small>
   )

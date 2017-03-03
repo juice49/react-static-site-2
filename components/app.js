@@ -1,23 +1,38 @@
 import React, { Component, PropTypes } from 'react'
-import { Match, Miss } from 'react-router'
+import { Route, Switch } from 'react-router-dom'
 import { theme } from '../theme-config'
 import Content from './content'
 
 const { Index, NotFound } = theme
-
-const initialState = {
-  cache: {}
-}
+const initialState = { cache: {} }
 
 export default class App extends Component {
 
   constructor (props) {
     super(props)
     this.state = initialState
-    this.cacheContent = this.cacheContent.bind(this)
+    this.contentDidLoad = this.contentDidLoad.bind(this)
+    this.appendCache = this.appendCache.bind(this)
   }
 
-  cacheContent (urn, content) {
+  componentWillMount () {
+    this.mergeCache(this.props.cache)
+  }
+
+  contentDidLoad (urn, content) {
+    this.appendCache(urn, content)
+  }
+
+  mergeCache (nextCache) {
+    this.setState(({ cache }) => ({
+      cache: {
+        ...cache,
+        ...nextCache
+      }
+    }))
+  }
+
+  appendCache (urn, content) {
     this.setState(({ cache }) => ({
       cache: {
         ...cache,
@@ -28,22 +43,31 @@ export default class App extends Component {
 
   render () {
     return (
-      <div>
-        <Match pattern='/' exactly component={Index} />
-        <Match pattern='/posts/:urn' render={({ params }) => (
+      <Switch>
+        <Route path='/' exact component={Index} />
+        {/* <Route path='/' exact render={() => (
           <Content
-            cache={this.props.serverCache || this.state.cache}
-            urn={params.urn}
-            contentDidLoad={this.cacheContent}
+            cache={this.state.cache}
+            urn='index'
+            previousUrn={this.state.previousUrn}
+            content={Index}
+            contentDidLoad={this.contentDidLoad}
+          />
+        )} /> */}
+        <Route path='/posts/:urn' render={({ match }) => (
+          <Content
+            cache={this.state.cache}
+            urn={match.params.urn}
+            contentDidLoad={this.contentDidLoad}
           />
         )} />
-        <Miss component={NotFound} />
-      </div>
+        <Route component={NotFound} />
+      </Switch>
     )
   }
 
 }
 
 App.propTypes = {
-  serverCache: PropTypes.object
+  cache: PropTypes.object
 }

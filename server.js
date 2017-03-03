@@ -5,13 +5,12 @@ import { join as pathJoin, dirname } from 'path'
 import mkdirp from 'mkdirp'
 import React from 'react'
 import { renderToString as render, renderToStaticMarkup } from 'react-dom/server'
-import { ServerRouter as Router, createServerRenderContext } from 'react-router'
+import { MemoryRouter as Router } from 'react-router-dom'
 import config from './config'
 import fetchContent from './lib/fetch-content'
 import { theme } from './theme-config'
 import App from './components/app'
 
-const context = createServerRenderContext()
 const { Document } = theme
 
 const paths = [
@@ -22,6 +21,10 @@ const paths = [
   {
     uri: '/posts/foo',
     urn: 'foo'
+  },
+  {
+    uri: '/posts/markdown',
+    urn: 'markdown'
   }
 ]
 
@@ -29,17 +32,24 @@ const fetchContentAndRenderPage = (uri, urn) => fetchContent(urn)
   .then(Content => renderPage(uri, urn, Content))
 
 const renderPage = (uri, urn, Content) => {
-  const initialCache = { [urn]: Content }
+  const cache = { [urn]: Content }
 
   const app = render(
-    <Router location={uri} context={context}>
-      <App serverCache={initialCache} />
+    <Router initialEntries={[ uri ]} initialIndex={0}>
+      <App cache={cache} />
     </Router>
   )
+
+  let prerendered
+
+  if (Content) {
+    prerendered = <script dangerouslySetInnerHTML={{ __html: `window.prerendered = ${JSON.stringify(urn)}` }} />
+  }
 
   const html = renderToStaticMarkup(
     <Document>
       <div id='app' dangerouslySetInnerHTML={{ __html: app }} />
+      {prerendered}
       <script src='/dist/index.js' />
     </Document>
   )
@@ -47,18 +57,24 @@ const renderPage = (uri, urn, Content) => {
   return Promise.resolve({ uri, html })
 }
 
-/* <script dangerouslySetInnerHTML={{ __html: `
-  window.prerendered = '${urn}'
-  window.test = function() { return ${Content} }
-` }} /> */
-
 const writePage = (uri, html) => {
-  const path = `${pathJoin(config.paths.public, uri)}`
-  mkdirp(dirname(path))
-  writeFile(path, html, err => {
+  const dirname = uri === 'index'
+    ? config.paths.public
+    : pathJoin(config.paths.public, uri)
+
+  const path = pathJoin(dirname, 'index.html')
+
+  mkdirp(dirname, err => {
     if (err) {
-      console.error(err)
+      console.log(err)
+      return
     }
+
+    writeFile(path, html, err => {
+      if (err) {
+        console.log(err)
+      }
+    })
   })
 }
 

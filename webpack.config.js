@@ -1,8 +1,8 @@
 'use strict'
 
 const path = require('path')
-const { parse: parseUrl } = require('url')
 const webpack = require('webpack')
+const express = require('express')
 const { paths } = require('./config')
 
 const webpackConfig = {
@@ -24,7 +24,7 @@ module.exports = [
       'react-hot-loader/patch',
       'webpack-dev-server/client?http://localhost:8080',
       'webpack/hot/only-dev-server',
-      './index.js'
+      './client.js'
     ],
     output: {
       path: path.resolve(__dirname, paths.public, paths.dist),
@@ -46,7 +46,9 @@ module.exports = [
       new webpack.HotModuleReplacementPlugin(),
       new webpack.NamedModulesPlugin()
     ],
-    devtool: 'inline-eval-cheap-source-map',
+    devtool: process.env.NODE_ENV === 'production'
+      ? 'source-map'
+      : 'cheap-eval-source-map',
     devServer: {
       contentBase: `./${paths.public}`,
       publicPath: '/',
@@ -59,45 +61,23 @@ module.exports = [
           }
         ]
       },
-      hot: true
-      /*proxy: {
-        '/': {
-          //onProxyReq: proxyReq => proxyReq.setHeader('x-foo', 'bar'),
-          //onProxyRes: (proxyReq, req, res) => res.write('hey!'),
-          target: 'http://localhost:8080', // xxx
-          pathRewrite: (reqPath, req) => {
-            const url = parseUrl(req.url)
-            const extname = path.extname(url.pathname)
-
-            console.log('PROXY', req)
-            return undefined
-
-            const destination = reqPath !== '/' && !extname && !req.headers['x-foo']
-              ? `${reqPath}.html`
-              : reqPath
-
-            console.log(req.headers)
-            console.log(`> Proxying ${reqPath} to ${destination}`)
-            return destination
-          }
-        }
-      }*/
+      hot: true,
+      quiet: true,
+      setup: app => {
+        app.use(
+          express.static(
+            `./${paths.public}`,
+            { extensions: [ 'html' ] }
+          )
+        )
+      }
     }
   },
   {
     entry: './server.js',
     output: {
-      path: path.resolve(__dirname, paths.public, paths.dist),
-      filename: 'server.js'
-    },
-    target: 'node',
-    module: webpackConfig.module
-  },
-  {
-    entry: './src/serve.js',
-    output: {
       path: path.resolve(__dirname, paths.dist),
-      filename: 'serve.js'
+      filename: 'server.js'
     },
     target: 'node',
     module: webpackConfig.module
