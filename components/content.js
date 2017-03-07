@@ -14,18 +14,20 @@ export default class Content extends Component {
   }
 
   componentDidMount () {
-    this.fetchContent(this.props.urn)
-  }
-
-  componentWillReceiveProps (nextProps) {
-    if (nextProps.urn !== this.props.urn) {
-      this.fetchContent(nextProps.urn)
+    if (!isBundled(this.props)) {
+      this.fetchContent(this.props.url, this.props.urn)
     }
   }
 
-  fetchContent (urn) {
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.url !== this.props.url && !isBundled(nextProps)) {
+      this.fetchContent(nextProps.url, nextProps.urn)
+    }
+  }
+
+  fetchContent (url, urn) {
     const { cache, contentDidLoad } = this.props
-    const cached = cache[urn]
+    const cached = cache[url]
 
     if (cached) {
       return Promise.resolve(cached)
@@ -35,8 +37,8 @@ export default class Content extends Component {
 
     return fetchContent(urn)
       .then(
-        Content => contentDidLoad(urn, Content),
-        () => contentDidLoad(urn, NotFound)
+        Content => contentDidLoad(url, Content),
+        () => contentDidLoad(url, NotFound)
       )
       .then(() => this.setState({
         fetching: false
@@ -44,16 +46,20 @@ export default class Content extends Component {
   }
 
   render () {
-    const { cache, urn } = this.props
-    const Content = cache[urn] || Loading
+    const { cache, url } = this.props
+    const Content = this.props.component || cache[url] || Loading
     return <Content />
   }
 
 }
 
 Content.propTypes = {
-  urn: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
+  urn: PropTypes.string,
   cache: PropTypes.object.isRequired,
   contentDidLoad: PropTypes.func.isRequired,
-  Content: PropTypes.element
+  component: PropTypes.any
 }
+
+const isBundled = ({ component }) =>
+  typeof component !== 'undefined'

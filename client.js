@@ -2,16 +2,23 @@
 
 import React from 'react'
 import { render } from 'react-dom'
+import { createStore } from 'redux'
+import { Provider } from 'react-redux'
 import isNode from 'detect-node'
 import { BrowserRouter as Router } from 'react-router-dom'
 import fetchContent from './lib/fetch-content'
+import app from './modules/app'
 import App from './components/app'
+
+const store = createStore(app)
 
 const renderApp = cache => {
   render(
-    <Router>
-      <App cache={cache} />
-    </Router>,
+    <Provider store={store}>
+      <Router>
+        <App cache={cache} />
+      </Router>
+    </Provider>,
     document.getElementById('app')
   )
 }
@@ -19,10 +26,10 @@ const renderApp = cache => {
 const isDynamic = !isNode && window.prerendered
 
 if (isDynamic) {
-  const urn = isDynamic
+  const { url, urn } = isDynamic
   fetchContent(urn)
     .then(Content => renderApp(
-      { [urn]: Content }
+      { [url]: Content }
     ))
 } else {
   renderApp()

@@ -19,8 +19,8 @@ export default class App extends Component {
     this.mergeCache(this.props.cache)
   }
 
-  contentDidLoad (urn, content) {
-    this.appendCache(urn, content)
+  contentDidLoad (url, content) {
+    this.appendCache(url, content)
   }
 
   mergeCache (nextCache) {
@@ -32,11 +32,11 @@ export default class App extends Component {
     }))
   }
 
-  appendCache (urn, content) {
+  appendCache (url, content) {
     this.setState(({ cache }) => ({
       cache: {
         ...cache,
-        [urn]: content
+        [url]: content
       }
     }))
   }
@@ -44,19 +44,19 @@ export default class App extends Component {
   render () {
     return (
       <Switch>
-        <Route path='/' exact component={Index} />
-        {/* <Route path='/' exact render={() => (
+        {/* <Route path='/' exact component={Index} /> */}
+        <Route path='/' exact render={({ match }) => (
           <Content
             cache={this.state.cache}
-            urn='index'
-            previousUrn={this.state.previousUrn}
-            content={Index}
+            url={match.url}
+            component={Index}
             contentDidLoad={this.contentDidLoad}
           />
-        )} /> */}
+        )} />
         <Route path='/posts/:urn' render={({ match }) => (
           <Content
             cache={this.state.cache}
+            url={match.url}
             urn={match.params.urn}
             contentDidLoad={this.contentDidLoad}
           />

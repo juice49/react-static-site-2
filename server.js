@@ -15,15 +15,15 @@ const { Document } = theme
 
 const paths = [
   {
-    uri: '/posts/hello-world',
+    uri: '/posts/hello-world/',
     urn: 'hello-world'
   },
   {
-    uri: '/posts/foo',
+    uri: '/posts/foo/',
     urn: 'foo'
   },
   {
-    uri: '/posts/markdown',
+    uri: '/posts/markdown/',
     urn: 'markdown'
   }
 ]
@@ -32,7 +32,7 @@ const fetchContentAndRenderPage = (uri, urn) => fetchContent(urn)
   .then(Content => renderPage(uri, urn, Content))
 
 const renderPage = (uri, urn, Content) => {
-  const cache = { [urn]: Content }
+  const cache = { [uri]: Content }
 
   const app = render(
     <Router initialEntries={[ uri ]} initialIndex={0}>
@@ -43,7 +43,7 @@ const renderPage = (uri, urn, Content) => {
   let prerendered
 
   if (Content) {
-    prerendered = <script dangerouslySetInnerHTML={{ __html: `window.prerendered = ${JSON.stringify(urn)}` }} />
+    prerendered = <script dangerouslySetInnerHTML={{ __html: `window.prerendered = ${JSON.stringify({ url: uri, urn })}` }} />
   }
 
   const html = renderToStaticMarkup(
@@ -87,5 +87,5 @@ Promise.all(pages)
       writePage(uri, html))
   })
 
-renderPage('/', 'index')
+renderPage('/')
   .then(({ html }) => writePage('index', html))
