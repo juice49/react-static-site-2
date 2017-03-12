@@ -4,7 +4,12 @@ import fetchContent from '../lib/fetch-content'
 import Loading from './loading'
 
 const { NotFound } = theme
-const initialState = { fetching: null }
+
+const initialState = {
+  fetching: false,
+  previousUrl: null,
+  url: null
+}
 
 export default class Content extends Component {
 
@@ -14,23 +19,38 @@ export default class Content extends Component {
   }
 
   componentDidMount () {
-    if (!isBundled(this.props)) {
-      this.fetchContent(this.props.url, this.props.urn)
-    }
+    this.fetchContent(this.props.url, this.props.urn, this.props.component)
+    this.onTransition(this.props.url)
   }
 
   componentWillReceiveProps (nextProps) {
-    if (nextProps.url !== this.props.url && !isBundled(nextProps)) {
-      this.fetchContent(nextProps.url, nextProps.urn)
+    if (nextProps.url !== this.props.url) {
+      this.onTransition(nextProps.url)
+    }
+
+    if (nextProps.url !== this.props.url) {
+      this.fetchContent(nextProps.url, nextProps.urn, nextProps.component)
     }
   }
 
-  fetchContent (url, urn) {
+  onTransition (url) {
+    this.setState(state => ({
+      previousUrl: state.url,
+      url
+    }))
+  }
+
+  fetchContent (url, urn, component) {
     const { cache, contentDidLoad } = this.props
     const cached = cache[url]
 
     if (cached) {
       return Promise.resolve(cached)
+    }
+
+    if (isBundled(component)) {
+      contentDidLoad(url, component)
+      return Promise.resolve(component)
     }
 
     this.setState({ fetching: true })
@@ -47,8 +67,9 @@ export default class Content extends Component {
 
   render () {
     const { cache, url } = this.props
-    const Content = this.props.component || cache[url] || Loading
-    return <Content />
+    const { previousUrl } = this.state
+    const Content = this.props.component || cache[url] || cache[previousUrl] || Loading
+    return <Content fetching={this.state.fetching} />
   }
 
 }
@@ -61,5 +82,5 @@ Content.propTypes = {
   component: PropTypes.any
 }
 
-const isBundled = ({ component }) =>
+const isBundled = component =>
   typeof component !== 'undefined'

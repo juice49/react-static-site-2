@@ -6,6 +6,7 @@ import mkdirp from 'mkdirp'
 import React from 'react'
 import { renderToString as render, renderToStaticMarkup } from 'react-dom/server'
 import { MemoryRouter as Router } from 'react-router-dom'
+import { styleSheet } from 'styled-components'
 import config from './config'
 import fetchContent from './lib/fetch-content'
 import { theme } from './theme-config'
@@ -48,6 +49,9 @@ const renderPage = (uri, urn, Content) => {
 
   const html = renderToStaticMarkup(
     <Document>
+      <style>
+        {styleSheet.getCSS()}
+      </style>
       <div id='app' dangerouslySetInnerHTML={{ __html: app }} />
       {prerendered}
       <script src='/dist/index.js' />

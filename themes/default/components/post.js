@@ -1,8 +1,8 @@
 import React from 'react'
 import Layout from './layout'
 
-const Post = ({ title, tags, children }) => (
-  <Layout>
+const Post = ({ title, tags, children, fetching }) => (
+  <Layout fetching={fetching}>
     <article style={style}>
       <h2>{title}</h2>
       {children}

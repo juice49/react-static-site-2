@@ -44,7 +44,6 @@ export default class App extends Component {
   render () {
     return (
       <Switch>
-        {/* <Route path='/' exact component={Index} /> */}
         <Route path='/' exact render={({ match }) => (
           <Content
             cache={this.state.cache}

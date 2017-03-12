@@ -16,7 +16,8 @@ const Post = ({ markdown, title, tags, children }) => {
 
 Post.propTypes = {
   title: PropTypes.string,
-  markdown: PropTypes.bool
+  markdown: PropTypes.bool,
+  fetching: PropTypes.bool
 }
 
 export default Post

@@ -2,8 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import Layout from './layout'
 
-const Index = () => (
-  <Layout>
+const Index = ({ fetching }) => (
+  <Layout fetching={fetching}>
     <h2>Posts</h2>
     <ul>
       <li><Link to='/posts/hello-world'>Hello, World!</Link></li>

@@ -49,5 +49,6 @@ export default () => (
       global variable inserted into a script tag to indicate the lazy component
       required to render the page.
     </p>
+    <p><Link to='/posts/foo'>Foo</Link></p>
   </Post>
 )
