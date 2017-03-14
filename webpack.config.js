@@ -81,5 +81,14 @@ module.exports = [
     },
     target: 'node',
     module: webpackConfig.module
+  },
+  {
+    entry: './json.js',
+    output: {
+      path: path.resolve(__dirname, paths.dist),
+      filename: 'json.js'
+    },
+    target: 'node',
+    module: webpackConfig.module
   }
 ]

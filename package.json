@@ -22,6 +22,7 @@
     "dev": "npm run build -- --watch --progress & webpack-dev-server",
     "dist": "NODE_ENV=production npm run build -- -p",
     "build": "webpack",
+    "build-json": "node dist/json",
     "build-html": "node dist/server",
     "serve": "serve public"
   },

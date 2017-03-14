@@ -3,6 +3,8 @@
 module.exports = {
   paths: {
     public: 'public',
-    dist: 'dist'
-  }
+    dist: 'dist',
+    data: 'public/data'
+  },
+  'pageLength': 10
 }

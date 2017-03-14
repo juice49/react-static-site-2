@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import Post from '../components/post'
+import Post from '../../components/post'
 
 export default () => (
   <Post title='Foo' tags={[ 'test', 'foo' ]}>
