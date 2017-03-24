@@ -26,8 +26,8 @@ const renderApp = cache => {
 const isDynamic = !isNode && window.prerendered
 
 if (isDynamic) {
-  const { url, urn } = isDynamic
-  fetchContent(urn)
+  const { url } = isDynamic
+  fetchContent(url)
     .then(Content => renderApp(
       { [url]: Content }
     ))

@@ -8,35 +8,21 @@ import { renderToString as render, renderToStaticMarkup } from 'react-dom/server
 import { MemoryRouter as Router } from 'react-router-dom'
 import { styleSheet } from 'styled-components'
 import config from './config'
+import mapContent from './lib/map-content'
 import fetchContent from './lib/fetch-content'
 import { theme } from './theme-config'
 import App from './components/app'
 
 const { Document } = theme
 
-const paths = [
-  {
-    uri: '/posts/hello-world/',
-    urn: 'hello-world'
-  },
-  {
-    uri: '/posts/foo/',
-    urn: 'foo'
-  },
-  {
-    uri: '/posts/markdown/',
-    urn: 'markdown'
-  }
-]
+const fetchContentAndRenderPage = pathname => fetchContent(pathname)
+  .then(Content => renderPage(pathname, Content))
 
-const fetchContentAndRenderPage = (uri, urn) => fetchContent(urn)
-  .then(Content => renderPage(uri, urn, Content))
-
-const renderPage = (uri, urn, Content) => {
-  const cache = { [uri]: Content }
+const renderPage = (pathname, Content) => {
+  const cache = { [pathname]: Content }
 
   const app = render(
-    <Router initialEntries={[ uri ]} initialIndex={0}>
+    <Router initialEntries={[ pathname ]} initialIndex={0}>
       <App cache={cache} />
     </Router>
   )
@@ -44,7 +30,13 @@ const renderPage = (uri, urn, Content) => {
   let prerendered
 
   if (Content) {
-    prerendered = <script dangerouslySetInnerHTML={{ __html: `window.prerendered = ${JSON.stringify({ url: uri, urn })}` }} />
+    prerendered = (
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.prerendered = ${JSON.stringify({ url: pathname })}`
+        }}
+      />
+    )
   }
 
   const html = renderToStaticMarkup(
@@ -58,13 +50,13 @@ const renderPage = (uri, urn, Content) => {
     </Document>
   )
 
-  return Promise.resolve({ uri, html })
+  return Promise.resolve({ pathname, html })
 }
 
-const writePage = (uri, html) => {
-  const dirname = uri === 'index'
+const writePage = (pathname, html) => {
+  const dirname = pathname === '/'
     ? config.paths.public
-    : pathJoin(config.paths.public, uri)
+    : pathJoin(config.paths.public, pathname)
 
   const path = pathJoin(dirname, 'index.html')
 
@@ -82,14 +74,12 @@ const writePage = (uri, html) => {
   })
 }
 
-const pages = paths.map(({ uri, urn }) =>
-  fetchContentAndRenderPage(uri, urn))
-
-Promise.all(pages)
-  .then(renderedPages => {
-    renderedPages.forEach(({ uri, html }) =>
-      writePage(uri, html))
-  })
+mapContent(config.paths.content)(item => {
+  fetchContentAndRenderPage(item.path)
+    .then(({ pathname, html }) => {
+      writePage(pathname, html)
+    })
+})
 
 renderPage('/')
-  .then(({ html }) => writePage('index', html))
+  .then(({ html }) => writePage('/', html))

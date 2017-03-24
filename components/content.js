@@ -7,8 +7,8 @@ const { NotFound } = theme
 
 const initialState = {
   fetching: false,
-  previousUrl: null,
-  url: null
+  previousPathname: null,
+  pathname: null
 }
 
 export default class Content extends Component {
@@ -19,46 +19,51 @@ export default class Content extends Component {
   }
 
   componentDidMount () {
-    this.fetchContent(this.props.url, this.props.urn, this.props.component)
-    this.onTransition(this.props.url)
+    this.fetchContent(this.props.pathname, this.props.component, this.props.list)
+    this.onTransition(this.props.pathname)
   }
 
   componentWillReceiveProps (nextProps) {
-    if (nextProps.url !== this.props.url) {
-      this.onTransition(nextProps.url)
+    if (nextProps.pathname !== this.props.pathname) {
+      this.onTransition(nextProps.pathname)
     }
 
-    if (nextProps.url !== this.props.url) {
-      this.fetchContent(nextProps.url, nextProps.urn, nextProps.component)
+    if (nextProps.pathname !== this.props.pathname) {
+      this.fetchContent(nextProps.pathname, nextProps.component, nextProps.list)
     }
   }
 
-  onTransition (url) {
+  onTransition (pathname) {
     this.setState(state => ({
-      previousUrl: state.url,
-      url
+      previousPathname: state.pathname,
+      pathname
     }))
   }
 
-  fetchContent (url, urn, component) {
+  fetchContent (pathname, component, list) {
     const { cache, contentDidLoad } = this.props
-    const cached = cache[url]
+    const cached = cache[pathname]
 
     if (cached) {
       return Promise.resolve(cached)
     }
 
     if (isBundled(component)) {
-      contentDidLoad(url, component)
+      contentDidLoad(pathname, component)
       return Promise.resolve(component)
     }
 
     this.setState({ fetching: true })
 
-    return fetchContent(urn)
+    /* if (list) {
+      console.log('fetch list')
+      fetchList(pathname)
+    } */
+
+    return fetchContent(pathname)
       .then(
-        Content => contentDidLoad(url, Content),
-        () => contentDidLoad(url, NotFound)
+        Content => contentDidLoad(pathname, Content),
+        () => contentDidLoad(pathname, NotFound)
       )
       .then(() => this.setState({
         fetching: false
@@ -66,20 +71,20 @@ export default class Content extends Component {
   }
 
   render () {
-    const { cache, url } = this.props
-    const { previousUrl } = this.state
-    const Content = this.props.component || cache[url] || cache[previousUrl] || Loading
+    const { cache, pathname } = this.props
+    const { previousPathname } = this.state
+    const Content = this.props.component || cache[pathname] || cache[previousPathname] || Loading
     return <Content fetching={this.state.fetching} />
   }
 
 }
 
 Content.propTypes = {
-  url: PropTypes.string.isRequired,
-  urn: PropTypes.string,
+  pathname: PropTypes.string.isRequired,
   cache: PropTypes.object.isRequired,
   contentDidLoad: PropTypes.func.isRequired,
-  component: PropTypes.any
+  component: PropTypes.any,
+  list: PropTypes.bool
 }
 
 const isBundled = component =>
