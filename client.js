@@ -2,23 +2,19 @@
 
 import React from 'react'
 import { render } from 'react-dom'
-import { createStore } from 'redux'
-import { Provider } from 'react-redux'
 import isNode from 'detect-node'
 import { BrowserRouter as Router } from 'react-router-dom'
 import fetchContent from './lib/fetch-content'
-import app from './modules/app'
 import App from './components/app'
-
-const store = createStore(app)
+import Store from './components/store'
 
 const renderApp = cache => {
   render(
-    <Provider store={store}>
+    <Store cache={cache}>
       <Router>
-        <App cache={cache} />
+        <App />
       </Router>
-    </Provider>,
+    </Store>,
     document.getElementById('app')
   )
 }

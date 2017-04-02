@@ -1,9 +1,12 @@
 import React, { Component, PropTypes } from 'react'
+import { connect } from 'react-redux'
+import { /* cachePush, */ transition } from '../modules/app'
 import { theme } from '../theme-config'
 import fetchContent from '../lib/fetch-content'
 import Loading from './loading'
 
 const { NotFound } = theme
+let cache = {}
 
 const initialState = {
   fetching: false,
@@ -11,7 +14,7 @@ const initialState = {
   pathname: null
 }
 
-export default class Content extends Component {
+class Content extends Component {
 
   constructor (props) {
     super(props)
@@ -19,7 +22,7 @@ export default class Content extends Component {
   }
 
   componentDidMount () {
-    this.fetchContent(this.props.pathname, this.props.component, this.props.list)
+    this.fetchContent(this.props.pathname, this.props.component)
     this.onTransition(this.props.pathname)
   }
 
@@ -29,19 +32,16 @@ export default class Content extends Component {
     }
 
     if (nextProps.pathname !== this.props.pathname) {
-      this.fetchContent(nextProps.pathname, nextProps.component, nextProps.list)
+      this.fetchContent(nextProps.pathname, nextProps.component)
     }
   }
 
   onTransition (pathname) {
-    this.setState(state => ({
-      previousPathname: state.pathname,
-      pathname
-    }))
+    this.props.dispatch(transition(pathname))
   }
 
-  fetchContent (pathname, component, list) {
-    const { cache, contentDidLoad } = this.props
+  fetchContent (pathname, component) {
+    const { dispatch/* , cache */ } = this.props
     const cached = cache[pathname]
 
     if (cached) {
@@ -49,21 +49,17 @@ export default class Content extends Component {
     }
 
     if (isBundled(component)) {
-      contentDidLoad(pathname, component)
+      // dispatch(cachePush(pathname, component))
+      cache[pathname] = component
       return Promise.resolve(component)
     }
 
     this.setState({ fetching: true })
 
-    /* if (list) {
-      console.log('fetch list')
-      fetchList(pathname)
-    } */
-
     return fetchContent(pathname)
       .then(
-        Content => contentDidLoad(pathname, Content),
-        () => contentDidLoad(pathname, NotFound)
+        content => cache[pathname] = content,
+        () => cache[pathname] = NotFound
       )
       .then(() => this.setState({
         fetching: false
@@ -71,8 +67,8 @@ export default class Content extends Component {
   }
 
   render () {
-    const { cache, pathname } = this.props
-    const { previousPathname } = this.state
+    const { /* cache, */ pathname, previousPathname } = this.props
+    console.log('cache', cache)
     const Content = this.props.component || cache[pathname] || cache[previousPathname] || Loading
     return <Content fetching={this.state.fetching} />
   }
@@ -81,11 +77,13 @@ export default class Content extends Component {
 
 Content.propTypes = {
   pathname: PropTypes.string.isRequired,
-  cache: PropTypes.object.isRequired,
-  contentDidLoad: PropTypes.func.isRequired,
-  component: PropTypes.any,
-  list: PropTypes.bool
+  component: PropTypes.any
 }
+
+const select = ({ previousUrl }) =>
+  ({ previousPathname: previousUrl })
+
+export default connect(select)(Content)
 
 const isBundled = component =>
   typeof component !== 'undefined'

@@ -12,6 +12,7 @@ import mapContent from './lib/map-content'
 import fetchContent from './lib/fetch-content'
 import { theme } from './theme-config'
 import App from './components/app'
+import Store from './components/store'
 
 const { Document } = theme
 
@@ -22,9 +23,11 @@ const renderPage = (pathname, Content) => {
   const cache = { [pathname]: Content }
 
   const app = render(
-    <Router initialEntries={[ pathname ]} initialIndex={0}>
-      <App cache={cache} />
-    </Router>
+    <Store cache={cache}>
+      <Router initialEntries={[ pathname ]} initialIndex={0}>
+        <App />
+      </Router>
+    </Store>
   )
 
   let prerendered

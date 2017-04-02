@@ -24,6 +24,7 @@
     "build": "webpack",
     "build-json": "node dist/json",
     "build-html": "node dist/server",
+    "gather-routes": "KALOPSIA_INDEX=true node dist/gather-routes",
     "serve": "serve public"
   },
   "dependencies": {

@@ -90,5 +90,14 @@ module.exports = [
     },
     target: 'node',
     module: webpackConfig.module
+  },
+  {
+    entry: './gather-routes.js',
+    output: {
+      path: path.resolve(__dirname, paths.dist),
+      filename: 'gather-routes.js'
+    },
+    target: 'node',
+    module: webpackConfig.module
   }
 ]
