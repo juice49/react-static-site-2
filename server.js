@@ -10,6 +10,7 @@ import { styleSheet } from 'styled-components'
 import config from './config'
 import mapContent from './lib/map-content'
 import fetchContent from './lib/fetch-content'
+import { set as cacheSet } from './lib/cache'
 import { theme } from './theme-config'
 import App from './components/app'
 import Store from './components/store'
@@ -20,10 +21,11 @@ const fetchContentAndRenderPage = pathname => fetchContent(pathname)
   .then(Content => renderPage(pathname, Content))
 
 const renderPage = (pathname, Content) => {
-  const cache = { [pathname]: Content }
+  // const cache = { [pathname]: Content }
+  cacheSet(pathname)(Content)
 
   const app = render(
-    <Store cache={cache}>
+    <Store>
       <Router initialEntries={[ pathname ]} initialIndex={0}>
         <App />
       </Router>

@@ -1,12 +1,12 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { /* cachePush, */ transition } from '../modules/app'
+import { transition } from '../modules/app'
 import { theme } from '../theme-config'
 import fetchContent from '../lib/fetch-content'
+import * as cache from '../lib/cache'
 import Loading from './loading'
 
 const { NotFound } = theme
-let cache = {}
 
 const initialState = {
   fetching: false,
@@ -41,16 +41,14 @@ class Content extends Component {
   }
 
   fetchContent (pathname, component) {
-    const { dispatch/* , cache */ } = this.props
-    const cached = cache[pathname]
+    const cached = cache.get(pathname)
 
     if (cached) {
       return Promise.resolve(cached)
     }
 
     if (isBundled(component)) {
-      // dispatch(cachePush(pathname, component))
-      cache[pathname] = component
+      cache.set(pathname)(component)
       return Promise.resolve(component)
     }
 
@@ -58,8 +56,8 @@ class Content extends Component {
 
     return fetchContent(pathname)
       .then(
-        content => cache[pathname] = content,
-        () => cache[pathname] = NotFound
+        content => cache.set(pathname)(content),
+        () => cache.set(pathname)(NotFound)
       )
       .then(() => this.setState({
         fetching: false
@@ -67,9 +65,9 @@ class Content extends Component {
   }
 
   render () {
-    const { /* cache, */ pathname, previousPathname } = this.props
-    console.log('cache', cache)
-    const Content = this.props.component || cache[pathname] || cache[previousPathname] || Loading
+    const { pathname, previousPathname } = this.props
+    console.log('cache', cache.get())
+    const Content = this.props.component || cache.get(pathname) || cache.get(previousPathname) || Loading
     return <Content fetching={this.state.fetching} />
   }
 
