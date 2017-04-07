@@ -25,6 +25,7 @@
     "build-json": "node dist/json",
     "build-html": "node dist/server",
     "gather-routes": "KALOPSIA_INDEX=true node dist/gather-routes",
+    "gather-and-build": "npm run gather-routes | npm run build-html",
     "serve": "serve public"
   },
   "dependencies": {

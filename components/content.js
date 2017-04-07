@@ -66,7 +66,6 @@ class Content extends Component {
 
   render () {
     const { pathname, previousPathname } = this.props
-    console.log('cache', cache.get())
     const Content = this.props.component || cache.get(pathname) || cache.get(previousPathname) || Loading
     return <Content fetching={this.state.fetching} />
   }

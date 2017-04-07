@@ -7,7 +7,7 @@ export default class Route extends Component {
     super(props)
 
     if (process.env.KALOPSIA_INDEX && props.prerender && props.path) {
-      console.log('indexing', props.path)
+      process.stdout.write(`route: ${props.path}`)
     }
   }
 

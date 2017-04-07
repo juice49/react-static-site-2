@@ -9,6 +9,10 @@ export default class Query extends Component {
     const { path } = this.props
 
     if (path) {
+      if (process.env.KALOPSIA_INDEX) {
+        process.stdout.write(`query: ${path}`)
+      }
+
       return (
         <Switch>
           {/* <Route path={path} /> */}
